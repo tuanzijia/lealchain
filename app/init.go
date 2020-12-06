@@ -1,7 +1,6 @@
-package main
+package app
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/pflag"
@@ -24,6 +23,7 @@ const (
 	FlagNameRedisAddress          = "redis.address"
 	FlagNameRedisDB               = "redis.db"
 	FlagNameServiceRegisterTarget = "service.register.target"
+	FlagNameLogLevel              = "log.level"
 )
 
 func init() {
@@ -42,23 +42,21 @@ func init() {
 	pflag.StringSlice(FlagNameRedisAddress, []string{"localhost:6379"}, "指定连接redis的`链接地址`，如果有多个地址将使用集群模式；多个地址使用逗号（,）分隔")
 	pflag.Int(FlagNameRedisDB, 0, "指定连接redis的`数据库`编号，默认为0，即默认使用DB0")
 	pflag.String(FlagNameServiceRegisterTarget, "", "指定用于服务发现的服务注册地址")
+	pflag.Int(FlagNameLogLevel, -1, "日志等级，DebugLevel：-1，InfoLevel：0，WarnLevel：1，ErrorLevel：2，DPanicLevel：3，PanicLevel：4，FatalLevel：5")
 
 	_ = viper.BindPFlags(pflag.CommandLine)
 
 	useHelp := pflag.BoolP("help", "h", false, "帮助")
-
 	pflag.Parse()
-
-	i := 0
-	for _, k := range viper.AllKeys() {
-		if viper.IsSet(k) {
-			i++
-		}
-	}
-	fmt.Println("------------------", i)
 
 	if *useHelp {
 		pflag.Usage()
 		os.Exit(0)
 	}
+
+	logLv := viper.GetInt(FlagNameLogLevel)
+	if logLv < -1 || logLv > 5 {
+		panic("日志等级错误")
+	}
+
 }
