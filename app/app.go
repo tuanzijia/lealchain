@@ -2,9 +2,11 @@ package app
 
 import (
 	"fmt"
+	"sync"
+
+	"lealchain/chain"
 	"lealchain/utils/log"
 	"lealchain/utils/redis"
-	"sync"
 
 	goRedis "github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
@@ -16,11 +18,9 @@ var (
 	once sync.Once
 )
 
-type handle func()
-
 type App struct {
 	redis       redis.Client
-	logicHandle map[string]handle
+	logicHandle map[string]chain.Module
 }
 
 func newChainApp() *App {
@@ -41,7 +41,7 @@ func InstanceApp() *App {
 	return app
 }
 
-func (a *App) RegisterLogicHandler(logicName string, h handle) {
+func (a *App) RegisterLogicHandler(logicName string, h chain.Module) {
 	if _, exists := a.logicHandle[logicName]; exists {
 		panic(fmt.Errorf("逻辑处理器已经存在:%s", logicName))
 	}

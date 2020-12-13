@@ -58,5 +58,4 @@ func init() {
 	if logLv < -1 || logLv > 5 {
 		panic("日志等级错误")
 	}
-
 }
